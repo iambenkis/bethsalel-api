@@ -1,21 +1,26 @@
-const mongoose = require('mongoose');
-const Schema   = mongoose.Schema;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-const BoatSchema = new Schema({
+const BoatSchema = new Schema(
+  {
     name: {
-        type: String,
+      type: String,
     },
-    class: [{
+    class: [
+      {
         name: String,
         price: Number,
-    }],
+      },
+    ],
     image: {
-        type: String,
+      type: String,
     },
     capacity: {
-        type: Number,
-    }
+      type: Number,
+    },
+    availability: {},
+  },
+  { timestamps: true }
+)
 
-}, { timestamps: true });
-
-module.exports = mongoose.model('Boat', BoatSchema);
+module.exports = mongoose.model('Boat', BoatSchema)
