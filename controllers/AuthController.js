@@ -3,37 +3,26 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const register = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10, function (err, hashedPass) {
+  const { name, email, phone, password, confirmPassword } = req.body
+
+  // Check if password and confirmPassword match
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json({ error: 'Passwords do not match', status: 400 })
+  }
+
+  // Create a new user with email and password
+  const user = new User({ name, email, phone, password, confirmPassword })
+
+  // Save the user to the database
+  user.save((err) => {
     if (err) {
-      res.json({
-        error: err,
-      })
+      return res
+        .status(500)
+        .json({ error: 'Registration failed, Check your logins', status: 500 })
     }
-
-    if (req.body.password !== req.body.confirmPassword) {
-      return res.json({
-        message: 'Password does not matched!',
-      })
-    }
-
-    let user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPass,
-      phone: req.body.phone,
-    })
-    user
-      .save()
-      .then((user) => {
-        res.json({
-          message: 'User added successfully!',
-        })
-      })
-      .catch((error) => {
-        res.json({
-          message: 'An error occured!',
-        })
-      })
+    res.status(201).json({ message: 'User registered successfully' })
   })
 }
 
@@ -60,7 +49,7 @@ const login = (req, res, next) => {
             })
           } else {
             res.json({
-              message: 'Password does not matched!',
+              message: 'Incorrect password!',
             })
           }
         })
