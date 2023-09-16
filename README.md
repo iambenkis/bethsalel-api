@@ -2,7 +2,7 @@
 
 <!--
 !!! IMPORTANT !!!
-This README is an example of how you could professionally present your codebase. 
+This README is an example of how you could professionally present your codebase. vvgg
 Writing documentation is a crucial part of your work as a professional software developer and cannot be ignored. 
 
 You should modify this file to match your project and remove sections that don't apply.
