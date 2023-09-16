@@ -35,7 +35,7 @@ For more information on the importance of a professional README for your reposit
 
 </div>
 
-<!-- TABLE OF CONTENTS -->
+<!-- TABLE OF CONTENTS- -->
 
 # 📗 Table of Contents
 
