@@ -2,39 +2,49 @@
 const Reservation = require('../models/reservation')
 
 // Create a new reservation
-exports.createReservation = async (req, res) => {
-  try {
-    const { userId, boatId, reservationDate } = req.body
+let create = (req, res, next) => {
+  const { userId, boatId, departureDate, returnDate, isRoundtrip, boatClass } =
+    req.body
 
-    // Create a reservation instance
-    const reservation = new Reservation({
-      user: userId,
-      boat: boatId,
-      reservationDate,
+  // Create a reservation instance
+  const reservation = new Reservation({
+    user: userId,
+    boat: boatId,
+    departureDate: departureDate,
+    returnDate: returnDate,
+    isRoundtrip: isRoundtrip,
+    boatClass: boatClass,
+  })
+
+  // Save the reservation to the database
+  reservation
+    .save()
+    .then((response) => {
+      res.json({
+        message: 'Reservation Added Successfully!',
+      })
     })
-
-    // Save the reservation to the database
-    await reservation.save()
-
-    res
-      .status(201)
-      .json({ message: 'Reservation created successfully', reservation })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to create reservation' })
-  }
+    .catch((error) => {
+      res.json({
+        message: 'An error Occured!',
+      })
+    })
 }
 
 // Get a list of reservations
-exports.listReservations = async (req, res) => {
-  try {
-    const reservations = await Reservation.find().populate('user boat')
-
-    res.status(200).json(reservations)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to retrieve reservations' })
-  }
+const index = (req, res, next) => {
+  Reservation.find()
+    .then((response) => {
+      res.json({
+        response,
+      })
+    })
+    .catch((error) => {
+      console.error(error)
+      res.status(500).json({ error: 'Failed to retrieve reservations' })
+    })
 }
 
 // Other reservation-related controller actions can be added here (e.g., update, delete)
+
+module.exports = { create, index }
