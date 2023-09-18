@@ -13,16 +13,23 @@ const reservationSchema = new Schema({
     required: true,
   },
   departureDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   returnDate: {
-    type: Date,
+    type: String,
     required: true,
   },
-  isRoundTrip: {
+  isRoundtrip: {
     type: Boolean,
     required: true,
+  },
+  boatClass: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
   },
 })
 
