@@ -13,11 +13,12 @@ const register = (req, res, next) => {
   }
 
   // Create a new user with email and password
-  const user = new User({ name, email, phone, password, confirmPassword })
+  const user = new User({ name, email, password, confirmPassword })
 
   // Save the user to the database
   user.save((err) => {
     if (err) {
+      console.log(err)
       return res
         .status(500)
         .json({ error: 'Registration failed, Check your logins', status: 500 })
@@ -46,6 +47,7 @@ const login = (req, res, next) => {
             res.json({
               message: 'Login Successful!',
               token,
+              username: user.name,
             })
           } else {
             res.json({
