@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const session = require('express-session')
 
 const BoatRoutes = require('./routes/boat')
 const AuthRoutes = require('./routes/auth')
@@ -28,6 +29,17 @@ app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/uploads', express.static('uploads'))
+app.use(
+  session({
+    secret: 'your_secret_key', // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in a production environment if using HTTPS
+      maxAge: 3600000, // Session timeout in milliseconds (e.g., 1 hour)
+    },
+  })
+)
 
 const PORT = process.env.PORT || 3000
 
