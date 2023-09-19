@@ -44,10 +44,12 @@ const login = (req, res, next) => {
             let token = jwt.sign({ name: user.name }, 'verySecretValue', {
               expiresIn: '1h',
             })
+            req.session.user = user.name
+            console.log(req.session.user)
             res.json({
               message: 'Login Successful!',
               token,
-              username: user.name,
+              username: req.session.user,
             })
           } else {
             res.json({
@@ -64,4 +66,12 @@ const login = (req, res, next) => {
   )
 }
 
-module.exports = { register, login }
+const sessionChecker = (req, res, next) => {
+  if (req.session.user) {
+    return res.json({ valid: true, username: req.session.user })
+  } else {
+    return res.json({ valid: false })
+  }
+}
+
+module.exports = { register, login, sessionChecker }
