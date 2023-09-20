@@ -5,11 +5,16 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 const session = require('express-session')
+const cookieParser = require('cookie-parser')
+const crypto = require('crypto')
+const MongoStore = require('connect-mongo')
 
 const BoatRoutes = require('./routes/boat')
 const AuthRoutes = require('./routes/auth')
 const ReservationRoutes = require('./routes/reservation')
+const { sessionChecker } = require('./controllers/AuthController')
 const dbUrl = process.env.DB_URL
+const secretKey = crypto.randomBytes(32).toString('hex')
 
 mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
 const db = mongoose.connection
@@ -24,19 +29,30 @@ db.once('open', () => {
 
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+    methods: ['GET', 'POST'],
+  })
+)
+
+app.use(cookieParser())
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/uploads', express.static('uploads'))
 app.use(
   session({
-    secret: 'your_secret_key', // Replace with a strong secret key
+    key: 'userId',
+    secret: secretKey, // Replace with a strong secret key
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: dbUrl,
+    }),
     cookie: {
-      secure: false, // Set to true in a production environment if using HTTPS
-      maxAge: 3600000, // Session timeout in milliseconds (e.g., 1 hour)
+      expires: 60 * 60 * 24,
     },
   })
 )
@@ -49,4 +65,5 @@ app.listen(PORT, () => {
 
 app.use('/api/boat', BoatRoutes)
 app.use('/api', AuthRoutes)
+app.get('/login', sessionChecker)
 app.use('/api', ReservationRoutes)
