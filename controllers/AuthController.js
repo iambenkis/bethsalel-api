@@ -27,7 +27,7 @@ const register = (req, res, next) => {
   })
 }
 
-const login = (req, res, next) => {
+const login = (req, res) => {
   let username = req.body.username
   let password = req.body.password
 
@@ -44,8 +44,13 @@ const login = (req, res, next) => {
             let token = jwt.sign({ name: user.name }, 'verySecretValue', {
               expiresIn: '1h',
             })
-            req.session.user = user.name
-            console.log(req.session.user)
+            req.session.user = user
+            req.session.save()
+            res.cookie('bth_auth', req.session.user, {
+              maxAge: 60 * 60 * 24,
+              httpOnly: true, // Set to true for added security
+            })
+            console.log(req.session, 'session login')
             res.json({
               message: 'Login Successful!',
               token,
@@ -66,11 +71,12 @@ const login = (req, res, next) => {
   )
 }
 
-const sessionChecker = (req, res, next) => {
+const sessionChecker = (req, res) => {
+  console.log(req.session.user, 'session')
   if (req.session.user) {
-    return res.json({ valid: true, username: req.session.user })
+    res.json({ valid: true, username: req.session.user })
   } else {
-    return res.json({ valid: false })
+    res.json({ valid: false })
   }
 }
 
