@@ -15,6 +15,7 @@ const ReservationRoutes = require('./routes/reservation')
 const { sessionChecker } = require('./controllers/AuthController')
 const dbUrl = process.env.DB_URL
 const secretKey = crypto.randomBytes(32).toString('hex')
+// console.log(secretKey, 'secret')
 
 mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
 const db = mongoose.connection
@@ -44,16 +45,15 @@ app.use(bodyParser.json())
 app.use('/uploads', express.static('uploads'))
 app.use(
   session({
-    key: 'userId',
-    secret: secretKey, // Replace with a strong secret key
+    key: 'sessionId',
+    secret: process.env.JWT_SECRET, // Replace with a strong secret key
     resave: false,
-    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: dbUrl,
+      collectionName: 'sessions',
+      ttl: 60 * 60 * 24, // 1 day
     }),
-    cookie: {
-      expires: 60 * 60 * 24,
-    },
+    saveUninitialized: true,
   })
 )
 
