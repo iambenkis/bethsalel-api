@@ -1,3 +1,4 @@
+require('dotenv').config()
 const User = require('../models/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -28,10 +29,10 @@ const register = (req, res, next) => {
 }
 
 const login = (req, res) => {
-  let username = req.body.username
+  let email = req.body.email
   let password = req.body.password
 
-  User.findOne({ $or: [{ email: username }, { phone: username }] }).then(
+  User.findOne({ $or: [{ email: email }, { password: password }] }).then(
     (user) => {
       if (user) {
         bcrypt.compare(password, user.password, function (err, result) {
@@ -40,21 +41,25 @@ const login = (req, res) => {
               error: err,
             })
           }
+
+          console.log(user, `user`)
+
           if (result) {
-            let token = jwt.sign({ name: user.name }, 'verySecretValue', {
+            let token = jwt.sign({ name: user.name }, process.env.JWT_SECRET, {
               expiresIn: '1h',
             })
             req.session.user = user
             req.session.save()
-            res.cookie('bth_auth', req.session.user, {
+            // console.log(jwt.verify(token, process.env.JWT_SECRET), 'token_@')
+            res.cookie('sessionId', token, {
               maxAge: 60 * 60 * 24,
               httpOnly: true, // Set to true for added security
+              secure: true,
             })
-            console.log(req.session, 'session login')
+
             res.json({
               message: 'Login Successful!',
               token,
-              username: req.session.user,
             })
           } else {
             res.json({
@@ -72,12 +77,22 @@ const login = (req, res) => {
 }
 
 const sessionChecker = (req, res) => {
-  console.log(req.session.user, 'session')
+  // const store = req.cookies.sessionId
+  // console.log(store, 'session')
+  console.log(req.cookies, 'session login')
   if (req.session.user) {
     res.json({ valid: true, username: req.session.user })
   } else {
     res.json({ valid: false })
   }
+  // try {
+  //   const decoded = jwt.verify(req.cookies.sessionId, process.env.JWT_SECRET)
+  //   // Handle the decoded data as needed
+  //   // console.log(decoded, 'decoded')
+  // } catch (e) {
+  //   console.log(e)
+  // Handle errors here
+  // }
 }
 
 module.exports = { register, login, sessionChecker }
