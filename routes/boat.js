@@ -3,8 +3,9 @@ const router = express.Router()
 
 const BoatController = require('../controllers/BoatController')
 const upload = require('../middleware/upload')
+const cookieJwtAuth = require('../middleware/cookieJwtAuth')
 
-router.get('/', BoatController.index)
+router.get('/', cookieJwtAuth, BoatController.index)
 router.post('/show', BoatController.show)
 router.post('/store', upload.single('image'), BoatController.store)
 router.post('/update', BoatController.update)
