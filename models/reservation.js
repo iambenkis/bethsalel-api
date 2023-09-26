@@ -21,7 +21,7 @@ const reservationSchema = new Schema({
     required: true,
   },
   isRoundtrip: {
-    type: Boolean,
+    type: String,
     required: true,
   },
   boatClass: {
