@@ -83,7 +83,7 @@ const index = (req, res, next) => {
 
 // Get a single reservation for a user
 const show = (req, res, next) => {
-  const { name } = req.params
+  const { name } = req.body
 
   User.findOne({ name })
     .then((user) => {
