@@ -3,18 +3,22 @@ const mongoose = require('mongoose')
 const Reservation = require('../models/reservation')
 const User = require('../models/User')
 const Boat = require('../models/Boat')
+const nodemailer = require('nodemailer')
+const juice = require('juice')
 
 // Create a new reservation
 let create = (req, res, next) => {
   const { userId, boatId, departureDate, returnDate, isRoundtrip, boatClass } =
     req.body
 
-  const ObjectId = mongoose.Types.ObjectId
-  // const user = new ObjectId(userId)
-  // const boat = new ObjectId(boatId)
-  // console.log(userId, 'user')
-  // const user = User.findOne({ name: userId })
-  // const boat = Boat.findOne({ name: boatId })
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail', // e.g., 'gmail' for Gmail
+    auth: {
+      user: 'benkisenge03@gmail.com',
+      pass: 'pxemigdrtvgzqtjx',
+    },
+  })
+
   let userM
 
   User.findOne({ name: userId })
@@ -42,10 +46,90 @@ let create = (req, res, next) => {
         boatClass: boatClass,
       })
 
+      console.log(isRoundtrip, 'isRoundtrip')
+
       // Save the reservation to the database
       reservation
         .save()
         .then((response) => {
+          const mailOptions = {
+            from: 'benkisenge03@gmail.com', // Replace with your email
+            to: userM.email, // Use the user's email from the User document
+            subject: 'Reservation Confirmation',
+            html: juice(`
+            <style>
+            .flex{
+              width: 70%;
+              display: flex;
+              flex-direction: column; 
+              padding: 10px; 
+            }
+            .justify-between {
+              justify-content: space-between;
+            }
+            .bg {
+              background-color: #edf2f7;
+            }
+
+            .font-medium {
+              font-weight: 400;
+            }
+            .mr {
+              margin-right: 50%;
+            }
+            </style>
+             <p>Your reservation has been confirmed for boat <strong>${boatId}</strong></p>
+             <div class="flex bg justify-between ">
+              <div class="mr">
+                <h3 class="font-medium">Full name : 
+                  <strong>${userId}</strong>
+                </h3>
+                <h3 class="font-medium">Ship name: 
+                  <strong>${boatId}</strong>
+                </h3>
+                <h3 class="font-medium">Ship class: 
+                  <strong>${boatClass}</strong>
+                </h3>
+              </div>
+              <div>
+                ${
+                  isRoundtrip === 'roundtrip'
+                    ? `<div>
+                    <h3 class="font-medium">
+                     Trip Status:  <strong>Round trip</strong>
+                    </h3>
+                    <h3 class="font-medium">
+                      Departure date : <strong>${departureDate}</strong>
+                    </h3>
+                    <h3 class="font-medium">Return date: 
+                      <strong>${returnDate}</strong>
+                    </h3>
+                  </div>`
+                    : `<div>
+                    <h3 class="font-medium">
+                      Trip Status: <strong>One way</strong>
+                    </h3>
+                    <h3 class="font-medium">
+                      <strong>Departure date : ${departureDate}</strong>
+                    </h3>
+                    <h3 class="font-medium">
+                      <strong>Return date: {'-'}</strong>
+                    </h3>
+                  </div>`
+                }
+              </div> 
+            </div>
+            `),
+          }
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('Error sending email:', error)
+            } else {
+              console.log('Email sent:', info.response)
+            }
+          })
+
           res.json({
             message: 'Reservation Added Successfully!',
           })
