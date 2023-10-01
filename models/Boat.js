@@ -15,6 +15,9 @@ const BoatSchema = new Schema(
     image: {
       type: String,
     },
+    description: {
+      type: String,
+    },
     capacity: {
       type: Number,
     },

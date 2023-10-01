@@ -35,6 +35,7 @@ const store = (req, res, next) => {
     class: req.body.class,
     capacity: req.body.capacity,
     image: req.body.image,
+    description: req.body.description,
   })
 
   if (req.file) {
