@@ -76,6 +76,82 @@ const login = (req, res) => {
   )
 }
 
+const updateUser = (req, res, next) => {
+  const { name, email, phone, image } = req.body
+
+  // Find the user by their name in the database
+  User.findOne({ name }, (err, user) => {
+    if (err) {
+      console.log(err)
+      return res.status(500).json({ error: 'Error finding user', status: 500 })
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found', status: 404 })
+    }
+
+    // Update user information
+    user.name = name || user.name
+    user.email = email || user.email
+    user.phone = phone || user.phone
+
+    // Update the image only if a new image is provided in the request
+    if (image) {
+      user.image = image
+    }
+
+    // Save the updated user data to the database
+    user.save((err) => {
+      if (err) {
+        console.log(err)
+        return res
+          .status(500)
+          .json({ error: 'Error updating user', status: 500 })
+      }
+
+      res.status(200).json({ message: 'User updated successfully' })
+    })
+  })
+}
+
+const update = (req, res, next) => {
+  const { name, email, phone, image } = req.body
+
+  // Find the user by their name in the database
+  User.findOne({ name }, (err, user) => {
+    if (err) {
+      console.log(err)
+      return res.status(500).json({ error: 'Error finding user', status: 500 })
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found', status: 404 })
+    }
+
+    // Update user information
+    user.name = name || user.name
+    user.email = email || user.email
+    user.phone = phone || user.phone
+
+    // Update the image only if a new image is provided in the request
+    if (image) {
+      user.image = image
+    }
+
+    // Save the updated user data to the database
+    user.save((err) => {
+      if (err) {
+        console.log(err)
+        return res
+          .status(500)
+          .json({ error: 'Error updating user', status: 500 })
+      }
+
+      res.status(200).json({ message: 'User updated successfully' })
+    })
+  })
+}
+
 const sessionChecker = (req, res) => {
   // const store = req.cookies.sessionId
   // console.log(store, 'session')
@@ -95,4 +171,4 @@ const sessionChecker = (req, res) => {
   // }
 }
 
-module.exports = { register, login, sessionChecker }
+module.exports = { register, login, sessionChecker, update }
