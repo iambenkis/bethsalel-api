@@ -29,10 +29,21 @@ db.once('open', () => {
 })
 
 const app = express()
+const allowedOrigins = ['http://localhost:3001', 'http://localhost:3002']
 
 app.use(
   cors({
-    origin: 'http://localhost:3001',
+    origin: function (origin, callback) {
+      // Check if the origin starts with http://localhost
+      if (
+        !origin ||
+        allowedOrigins.some((allowed) => origin.startsWith(allowed))
+      ) {
+        callback(null, true) // Allow the request
+      } else {
+        callback(new Error('Not allowed by CORS')) // Deny the request
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST'],
   })

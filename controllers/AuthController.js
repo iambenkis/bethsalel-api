@@ -152,6 +152,20 @@ const update = (req, res, next) => {
   })
 }
 
+const getAllUsers = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find()
+
+    // Send the users as a JSON response
+    res.json(users)
+  } catch (error) {
+    // Handle errors, e.g., send an error response
+    console.error('Error fetching users:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
 const sessionChecker = (req, res) => {
   // const store = req.cookies.sessionId
   // console.log(store, 'session')
@@ -171,4 +185,4 @@ const sessionChecker = (req, res) => {
   // }
 }
 
-module.exports = { register, login, sessionChecker, update }
+module.exports = { register, login, sessionChecker, update, getAllUsers }
